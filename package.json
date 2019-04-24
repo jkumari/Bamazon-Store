@@ -1,0 +1,23 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "Bamazon -Shopping innovation",
+  "main": "bamazonCustomer JS",
+  "scripts": {
+    "test": "node bamazonCustomer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jkumari/Bamazon-Store.git"
+  },
+  "author": "Jyoti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jkumari/Bamazon-Store/issues"
+  },
+  "homepage": "https://github.com/jkumari/Bamazon-Store#readme",
+  "dependencies": {
+    "inquirer": "^6.3.1",
+    "mysql": "^2.17.1"
+  }
+}
