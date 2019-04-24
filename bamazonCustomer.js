@@ -42,6 +42,65 @@ function displayProduct() {
         // console.log('\x1B[31mHello\x1B[34m World');
         // console.log('\x1b[43mHighlighted');
         // close DB connection after displaying the response from query
-        myConnection.end();
+        runSearch();
+        // myConnection.end();
     });
+}
+
+function runSearch() {
+    inquirer
+        .prompt([
+            {
+                name: "itemId",
+                type: "input",
+                message: "Please enter the product itemID that you would like to buy?"
+            },
+            {
+                name: "numOfQuantity",
+                type: "input",
+                message: "Please provide the quantity needed of this item?",
+                validate: function (value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                        console.log("Input validation error");
+                    }
+                    return false;
+                }
+            }
+        ])
+        .then(function (ans) {
+            console.log(ans.itemId + "  " + ans.numOfQuantity);
+            myConnection.query("SELECT stock_quantity,price FROM products WHERE ?", {
+                item_id: ans.itemId
+            }, function (err, res) {
+                if (err) {
+                    throw err;
+                    console.log("error in selecting data!")
+                }
+                else {
+                    let totalPriceOfItem = parseInt(ans.numOfQuantity) * res[0].price;
+                    console.log(res);
+                    console.log(res[0].stock_quantity + "And" + res[0].price);
+                    if (parseInt(res[0].stock_quantity) <= 0) {
+                        console.log("Insufficient quantity!");
+                        myConnection.end();
+                    }
+                    else {
+                        myConnection.query("UPDATE products SET ? WHERE ?",
+                            [
+                                {
+                                    stock_quantity: res[0].stock_quantity - ans.numOfQuantity
+                                },
+                                {
+                                    item_id: ans.itemId
+                                }
+                            ], function (error) {
+                                if (error) throw error;
+                                myConnection.end();
+                                console.log("Purchase completed. The unit price of your purchase is $"+res[0].price+"\n Total cost of your purchase is: " + totalPriceOfItem);
+                            });
+                        }
+                    }
+            });
+        });
 }
