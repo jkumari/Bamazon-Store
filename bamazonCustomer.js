@@ -39,8 +39,8 @@ function displayProduct() {
             for (let i = 0; i < res.length; i++) {
                 // \x1b[36m change the text color to Blue while console logging it, \x1b[0m- resets it back
                 console.log('\x1b[36m ItemID:\x1b[0m ' + res[i].item_id + "\x1b[36m || Product Name:\x1b[0m " + res[i].product_name +
-                 "\x1b[36m || Department Category:\x1b[0m " + res[i].department_name + "\x1b[36m || Product Price:\x1b[0m " + res[i].price +
-                  "\x1b[36m || Available Quantity:\x1b[0m " + res[i].stock_quantity);
+                    "\x1b[36m || Department Category:\x1b[0m " + res[i].department_name + "\x1b[36m || Product Price:\x1b[0m " + res[i].price +
+                    "\x1b[36m || Available Quantity:\x1b[0m " + res[i].stock_quantity);
                 // console.log('\x1b[36m Hello \x1b[34m Colored \x1b[35m World!');
                 // console.log('\x1B[31mHello\x1B[34m World');
                 // console.log('\x1b[43mHighlighted');
@@ -50,50 +50,48 @@ function displayProduct() {
     });
 }
 
-function purchaseItem() {
-    inquirer
-        .prompt([
-            {
-                name: "itemId",
-                type: "input",
-                message: "Please enter the product itemID that you would like to buy?",
-                validate: function (value) {
-                    if (isNaN(value) === true) return true;
-                    return false;
-                }
-            },
-            {
-                name: "numOfQuantity",
-                type: "input",
-                message: "Please provide the quantity needed of this item?",
-                validate: function (value) {
-                    if (isNaN(value) === false) {
-                        return true;
-                        console.log("Input validation error");
-                    }
-                    return false;
-                }
+inquirer
+    .prompt([
+        {
+            name: "itemId",
+            type: "input",
+            message: "Please enter the product itemID that you would like to buy?",
+            validate: function (value) {
+                if (isNaN(value) === true) return true;
+                return false;
             }
-        ])
-        .then(function (ans) {
-            // console.log(ans.itemId + "  " + ans.numOfQuantity);
-            updateStock(ans);
-        });
+        },
+        {
+            name: "numOfQuantity",
+            type: "input",
+            message: "Please provide the quantity needed of this item?",
+            validate: function (value) {
+                if (isNaN(value) === false) {
+                    return true;
+                    console.log("Input validation error");
+                }
+                return false;
+            }
+        }
+    ])
+    .then(function (ans) {
+        // console.log(ans.itemId + "  " + ans.numOfQuantity);
+        updateStock(ans);
+    });
 }
 
-function updateStock(ans)
-{
+function updateStock(ans) {
     myConnection.query("SELECT stock_quantity,price FROM products WHERE ?", {
         item_id: ans.itemId
     }, function (err, res) {
         // console.log(res.length);
         // if no product available for the given item ID
-        if (res.length===0) {
+        if (res.length === 0) {
             console.log("No product available in inventory for provided ItemID. Please try another product");
             start();
         }
         // if error in fetching the product details from database
-        else if(err){
+        else if (err) {
             throw err;
             console.log("error in selecting data!")
         }
@@ -117,30 +115,33 @@ function updateStock(ans)
                         }
                     ], function (error) {
                         if (error) throw error;
-                        console.log("Purchase completed. The unit price of your purchase is $" + res[0].price + 
-                        "\n Total cost of your purchase is :$" + totalPriceOfItem);
+                        console.log("Purchase completed. The unit price of your purchase is $" + res[0].price +
+                            "\n Total cost of your purchase is :$" + totalPriceOfItem);
                         start();
                     });
             }
         }
-});
+    });
 }
 
 function start() {
     inquirer
-      .prompt({
-        name: "wantToPurchase",
-        type: "list",
-        message: "Would you like to buy any item from the listed products?",
-        choices: ["Yes", "No"]
-      })
-      .then(function(answer) {
-        if (answer.wantToPurchase === "Yes") {
-            purchaseItem();
-        }
-        else if(answer.wantToPurchase === "No"){
-            myConnection.end();
-            console.log("Thank you for shopping with Bamazon!");
-        }
-      });
+        .prompt({
+            name: "wantToPurchase",
+            type: "list",
+            message: "Would you like to buy any item from the listed products?",
+            choices: ["Yes", "No"]
+        })
+        .then(function (answer) {
+            switch (answer.wantToPurchase) {
+                case "Yes":
+                    purchaseItem();
+                    break;
+
+                case "No":
+                    myConnection.end();
+                    console.log("Thank you for shopping with Bamazon!");
+                    break;
+            }
+        });
 }
