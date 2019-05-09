@@ -124,9 +124,77 @@ function addToInventory() {
 
 function addNewProduct() {
     console.log("Add new Product");
-    start();
+    console.log('>>>>>>Adding New Product<<<<<<');
+    console.log('Please provide required details');
+    let questionSet =
+        [
+            {
+                message: "Please provide ItemID",
+                type: "input",
+                name: "itemID",
+                validate: function validateAdditemId(name) {
+                    return name !== '';
+                }
+            },
+            {
+                message: "Please provide Product Name",
+                type: "input",
+                name: "productName",
+                validate: function validateAdditemId(name) {
+                    return name !== '';
+                }
+            },
+            {
+                message: "Please provide Product's department",
+                type: "input",
+                name: "departmentName",
+                validate: function validateAdditemId(name) {
+                    return name !== '';
+                }
+            },
+            {
+                message: "Please provide Product's price",
+                type: "input",
+                name: "prodPrice",
+                validate: function (value) {
+                    if (isNaN(value) === false) { return true; }
+                    else { return false; }
+                }
+            },
+            {
+                message: "Please provide Product stock quantity",
+                type: "input",
+                name: "stockQuantity",
+                validate: function validateNumOfItems(name) {
+                    var reg = /^\d+$/;
+                    return reg.test(name) || "It should be a number!";
+                }
+            }];
+    inquirer
+        .prompt(questionSet)
+        .then(function (answer) {
+            InsetNewItemToTable(answer);
+        });
 }
 
+function InsetNewItemToTable(answer) {
+
+    console.log(answer);
+
+    myConnection.query("INSERT INTO products SET ?", { 
+        item_id: answer.itemID,
+        product_name: answer.productName,
+        department_name: answer.departmentName,
+        price: answer.prodPrice,
+        stock_quantity: answer.stockQuantity
+    }, function (err, res) {
+        if (err) throw err;
+        else {
+            console.log(`One new item added to inventory with itemId ${answer.itemID}`);
+            start();
+        }
+    });
+}
 function displayData(res) {
     for (let i = 0; i < res.length; i++) {
         console.log('\x1b[36m ItemID:\x1b[0m ' + res[i].item_id +
@@ -137,19 +205,28 @@ function displayData(res) {
 }
 
 function updateInventory(answer) {
+    console.log(answer);
     let query1 = "select * from bamazon.products where item_id =?";
-    let query2 = "UPDATE products set stock_quantity = stock_quantity + ? WHERE item_id =";
+    let query2 = "UPDATE products set ? WHERE ?";
     myConnection.query(query1, [answer.additemId], function (err, res) {
+        console.log(res);
+        console.log(res[0].stock_quantity);
         if (err) throw err;
         else if (res.length === 0) {
             console.log(`No product found for provided itemID  ${answer.additemId}`);
             start();
         }
         else {
-            myConnection.query(query2, [ parseInt(answer.numOfItems),answer.additemId], function (err, res) {
+            console.log("res", res[0].stock_quantity);
+            console.log("res", parseInt(answer.numOfItems));
+            console.log(res[0].stock_quantity + parseInt(answer.numOfItems));
+            myConnection.query(query2, [{ stock_quantity: res[0].stock_quantity + parseInt(answer.numOfItems) }, { item_id: answer.additemId }], function (err, res) {
+                console.log(res);
                 if (err) throw err;
-                else console.log(`Inventory updated successfully for itemID ${answer.additemId}`);
-                start();
+                else {
+                    console.log(`Inventory updated successfully for itemID ${answer.additemId}`);
+                    start();
+                }
             });
         }
 
