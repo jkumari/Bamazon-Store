@@ -1,3 +1,6 @@
+Video Link :
+https://drive.google.com/file/d/1DsBMZZumcQ7FvkJtTPR7GVcmZAHqZuzK/view
+
 # bamazon
 
 This is bamazon. Bamazon, as it's name suggests, is a simple e-commerce app, or at least the backend for it. Check out this screencast on youtube to see how it works: [bamazon on youtube](LINK TO BE POSTED).
